@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-3.1.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <aop:config proxy-target-class="true"></aop:config>
+
+    <!--session Cookie模板-->
+    <bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <constructor-arg value="sid"/>
+        <property name="httpOnly" value="true"/>
+        <property name="maxAge" value="-1"/>
+    </bean>
+    <bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <constructor-arg value="rememberMe"/>
+        <property name="httpOnly" value="true"/>
+        <property name="maxAge" value="259200"/>
+    </bean>
+    <!--remeberMe管理器-->
+    <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <!--<property name="cipherKey" value="#{T(org.apache.shiro.codec.Base64).decode('sdfadfasdfadfa')}"/>-->
+        <property name="cookie" ref="rememberMeCookie"/>
+    </bean>
+
+    <!-- 整合了rememberMe功能的filter -->
+    <!--
+        <bean id="rememberAuthFilter" class="com.yqr.jxc.shiro.RememberAuthenticationFilter" ></bean>
+    -->
+
+    <!--定义Shiro主要业务对象-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="dataBaseRealm"/>
+        <property name="rememberMeManager" ref="rememberMeManager"/>
+        <property name="sessionManager" ref="sessionManager"/>
+    </bean>
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+<!--安全认证器-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/login"/>
+        <property name="successUrl" value="/success"/>
+        <property name="filterChainDefinitions">
+            <value>
+                /static/** = anon
+               <!-- /** = roles[admin]-->
+                /to_register = anon
+                /to_login = anon
+                <!--/login = anon-->
+                /logout = logout
+                /** =authc
+            </value>
+        </property>
+    </bean>
+
+    <!--会话管理器-->
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+        <property name="sessionValidationSchedulerEnabled" value="false"/>
+        <property name="sessionDAO" ref="sessionDAO1"/>
+        <property name="globalSessionTimeout" value="600000"/>
+        <property name="sessionIdCookie" ref="sessionIdCookie"/>
+    </bean>
+
+    <!-- 会话ID生成器-->
+    <bean id="sessionIdGenerator" class="org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator"/>
+    <!--会话读写实现类-->
+    <bean id="sessionDAO" class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">
+        <property name="sessionIdGenerator" ref="sessionIdGenerator"/>
+    </bean>
+
+    <bean id="sessionDAO1" class="com.cyyz.shirocas.shiro.MySessionDAO"/>
+
+    <!--缓存管理器-->
+   <!-- <bean id="shiroCacheManager"
+          class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManagerConfigFile" value="classpath:ehcache.xml"/>
+    </bean>-->
+    <!--缓存实现类-->
+   <!-- <bean id="shiroCache"
+          class=""/>
+-->
+    <bean id="dataBaseRealm" class="com.cyyz.shirocas.shiro.DataBaseRealm"/>
+    <!--保证实现了Shiro内部lifecycle函数的bean执行-->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+</beans>

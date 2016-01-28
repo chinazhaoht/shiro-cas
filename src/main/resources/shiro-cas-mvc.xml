@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-3.1.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config />
+    <context:component-scan base-package="com.cyyz.shirocas.web"></context:component-scan>
+
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"></bean>
+    <!-- 鍚姩SpringMVC鐨勬敞瑙ｅ姛鑳斤紝瀹屾垚璇锋眰鍜屾敞瑙OJO鐨勬槧灏� -->
+    <!-- 瀹氫箟璺宠浆鐨勬枃浠剁殑鍓嶅悗缂� 锛岃鍥炬ā寮忛厤缃�-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 杩欓噷鐨勯厤缃垜鐨勭悊瑙ｆ槸鑷姩缁欏悗闈ction鐨勬柟娉時eturn鐨勫瓧绗︿覆鍔犱笂鍓嶇紑鍜屽悗缂�锛屽彉鎴愪竴涓� 鍙敤鐨剈rl鍦板潃 -->
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!-- 閰嶇疆鏂囦欢涓婁紶锛屽鏋滄病鏈変娇鐢ㄦ枃浠朵笂浼犲彲浠ヤ笉鐢ㄩ厤缃紝褰撶劧濡傛灉涓嶉厤锛岄偅涔堥厤缃枃浠朵腑涔熶笉蹇呭紩鍏ヤ笂浼犵粍浠跺寘 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 榛樿缂栫爜 -->
+        <property name="defaultEncoding" value="utf-8" />
+        <!-- 鏂囦欢澶у皬鏈�澶у�� -->
+        <property name="maxUploadSize" value="10485760000" />
+        <!-- 鍐呭瓨涓殑鏈�澶у�� -->
+        <property name="maxInMemorySize" value="40960" />
+    </bean>
+
+</beans>
